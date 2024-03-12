@@ -41,7 +41,7 @@ def network_gen_3edges(node1,color1,node2,node3,edge1,edge2,edge3):
         font_color="yellow",
         directed=True,
         cdn_resources='remote',
-        select_menu=True
+        
     )
     net.add_nodes(node1, color=color1)
     net.add_nodes(node2)
@@ -60,9 +60,9 @@ def network_gen_2edges(node1,color1,node2,edge1):
         font_color="yellow",
         directed=True,
         cdn_resources='remote',
-        select_menu=True
+        
     )
-    net.add_nodes(node1)
+    net.add_nodes(node1, color = color1)
     net.add_nodes(node2)
     net.add_edges(edge1)
     net.save_graph("node.html")
@@ -70,15 +70,15 @@ def network_gen_2edges(node1,color1,node2,edge1):
     source_code= Html_file.read()
     return components.html(source_code,height=1000,width=1400)
 
-def network_gen_2nodes_2edges(node1,color1,node2,edge1,edge2):
+def network_gen_2nodes_2edges(node1,node2,edge1,edge2):
     net = Network(
         bgcolor="black",
         font_color="yellow",
         directed=True,
         cdn_resources='remote',
-        select_menu=True
+        
     )
-    net.add_nodes(node1, color=color1)
+    net.add_nodes(node1)
     net.add_nodes(node2)
     net.add_edges(edge1)
     net.add_edges(edge2)
@@ -92,22 +92,54 @@ data= pd.read_csv("ola_data.csv")
 cat = (data['category'])
 gen = (data['gender'])
 booking_id = (data['booking_id'])
+Trip_cost = (data['total_trip_cost'])
+distance_tra = (data['distance_travelled'])
+
+new_distance=[]
+for x in distance_tra:
+    if x>20:
+        new_distance.append(20)
+    if x>20 and x<40:
+        new_distance.append(40)
+    if x>40 and x<60:
+        new_distance.append(60)
+    if x>60 and x<100:
+        new_distance.append(80)
+
+unique_new_dist = unique_list(new_distance)
+dist_color = generate_colors(unique_new_dist)
+
+tuple_cat_dist = merge(unique_new_dist,cat)
+
+
+rounded_trip_cost = []
+for x in Trip_cost:
+        rounded_trip_cost.append(round(x))
+
+
 
 new_cat = unique_list(cat)
-print(new_cat)
 new_gen = unique_list(gen)
-print(new_gen)
 new_booking = unique_list(booking_id)
 
 gen_color = generate_colors(new_gen)
 cat_color = generate_colors(new_cat)
 
 tuple_cat_gen = merge(cat,gen)
+tuple_cat_cost = merge(rounded_trip_cost,cat)
 
-tab1= st.tabs(["Category-Gender correlation"])
+tab1,tab2,tab3= st.tabs(["Category-Gender correlation","Category-Trip Cost correlation","Category-Distance travelled Correlation"])
 with tab1:
     st.markdown("##")
     network_gen_2edges(new_cat,cat_color,new_gen,tuple_cat_gen)
+
+with tab2:
+    st.markdown("##")
+    network_gen_2edges(new_cat,cat_color,rounded_trip_cost,tuple_cat_cost)
+
+with tab3:
+    st.markdown("##")
+    network_gen_2edges(new_cat,cat_color,unique_new_dist,tuple_cat_dist)
 
 
 hide_streamlit_style = """
